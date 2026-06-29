@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Renamer</title>
+<style>
+  body {
+    background:#0a0b0f; color:#e5e7eb; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; height:100vh; margin:0;
+    font-family:sans-serif; gap:12px; text-align:center; padding:24px;
+    box-sizing:border-box;
+  }
+  .spinner {
+    width:28px; height:28px; border:3px solid rgba(255,255,255,.15);
+    border-top-color:#7c6cff; border-radius:50%; animation:spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .title { font-size:18px; font-weight:600; }
+  .hint { font-size:13px; color:#9ca3af; }
+</style>
+</head>
+<body>
+  <!--
+    Page locale de secours : ne s'affiche QUE si le WebView Capacitor n'a pas
+    pu charger https://rename.seraf1.fr (voir onReceivedError dans
+    MainActivity.java). Retente la connexion puis y renavigue normalement,
+    ce qui réattribue le bridge Capacitor à la page distante.
+  -->
+  <div class="spinner"></div>
+  <div class="title" id="status-title">Hors ligne</div>
+  <div class="hint" id="status-hint">Nouvelle tentative dans quelques secondes...</div>
+
+<script>
+const APP_URL = 'https://rename.seraf1.fr';
+const RETRY_DELAY_MS = 3000;
+
+async function tryConnect() {
+  try {
+    await fetch(APP_URL, { method: 'HEAD', cache: 'no-store', mode: 'no-cors' });
+    window.location.href = APP_URL;
+  } catch (e) {
+    setTimeout(tryConnect, RETRY_DELAY_MS);
+  }
+}
+
+tryConnect();
+
+// Sur cet écran de secours, il n'y a rien à "fermer" avant de quitter :
+// un seul appui sur retour doit suffire (sinon, sans App configuré, Android
+// se contente de ne rien faire puisqu'il n'y a pas d'historique webview).
+if (window.Capacitor && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins.App) {
+  window.Capacitor.Plugins.App.addListener('backButton', () => {
+    window.Capacitor.Plugins.App.exitApp();
+  });
+}
+</script>
+</body>
+</html>

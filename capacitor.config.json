@@ -1,0 +1,13 @@
+{
+  "appId": "fr.seraf1.renamer",
+  "appName": "Renamer",
+  "webDir": "www",
+  "server": {
+    "url": "https://rename.seraf1.fr",
+    "androidScheme": "https",
+    "errorPath": "index.html"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
