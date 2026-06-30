@@ -5,9 +5,11 @@
   "server": {
     "url": "https://rename.seraf1.fr",
     "androidScheme": "https",
-    "errorPath": "index.html"
+    "errorPath": "index.html",
+    "allowNavigation": ["rename.seraf1.fr"]
   },
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "loggingBehavior": "none"
   }
 }

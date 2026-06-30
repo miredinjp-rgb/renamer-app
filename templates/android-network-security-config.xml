@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CERTIFICATE PINNING — Android Network Security Config
+  ======================================================
+  ÉTAPES D'INSTALLATION :
+  1. Récupérez le hash SHA-256 de la clé publique du certificat :
+       openssl s_client -connect rename.seraf1.fr:443 2>/dev/null \
+         | openssl x509 -noout -pubkey \
+         | openssl pkey -pubin -outform der \
+         | openssl dgst -sha256 -binary \
+         | base64
+  2. Répétez l'opération pour votre certificat de backup (CA intermédiaire).
+  3. Remplacez REPLACE_WITH_PRIMARY_PUBKEY_HASH et REPLACE_WITH_BACKUP_PUBKEY_HASH
+     par les valeurs obtenues.
+  4. Mettez à jour la date d'expiration ("expiration") avant le renouvellement du cert.
+  5. Copiez ce fichier dans :
+       android/app/src/main/res/xml/network_security_config.xml
+  6. Dans android/app/src/main/AndroidManifest.xml, ajoutez dans <application> :
+       android:networkSecurityConfig="@xml/network_security_config"
+-->
+<network-security-config>
+
+  <!-- Interdit tout trafic en clair (HTTP) pour tout le trafic de l'app -->
+  <base-config cleartextTrafficPermitted="false">
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </base-config>
+
+  <!-- Épinglage de certificat pour le serveur applicatif -->
+  <domain-config cleartextTrafficPermitted="false">
+    <domain includeSubdomains="false">rename.seraf1.fr</domain>
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+    <pin-set expiration="2027-06-30">
+      <!-- Certificat principal -->
+      <pin digest="SHA-256">REPLACE_WITH_PRIMARY_PUBKEY_HASH</pin>
+      <!-- Certificat de backup (CA intermédiaire ou certificat de secours) -->
+      <pin digest="SHA-256">REPLACE_WITH_BACKUP_PUBKEY_HASH</pin>
+    </pin-set>
+  </domain-config>
+
+</network-security-config>
